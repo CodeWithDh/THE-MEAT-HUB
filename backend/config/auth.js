@@ -1,4 +1,4 @@
-import data from "./login.js";
+
 
 import connectDb from "./db.js";
 
@@ -19,8 +19,17 @@ export async function updatePass(newPass) {
 
 
 
-export let Remail=data[0].email;
-
-export let Rphone=data[0].phone;
+export async function getAdminDetails() {
+    const q = "SELECT * FROM login WHERE username = 'admin'";
+    try {
+        let data = await connectDb(q);
+        if (data && data.length > 0) {
+            return { email: data[0].email, phone: data[0].phone };
+        }
+    } catch (err) {
+        console.error("Database Error:", err);
+    }
+    return null;
+}
 
 

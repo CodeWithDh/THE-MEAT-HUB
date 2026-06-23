@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style/output.css" />
+    <title>Sales Analytics - The Meat-Hub</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+    ::-webkit-scrollbar { width: 3px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #ffffff, #ffffff); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #7e7d7d, #5e5959); }
+    </style>
+</head>
+<body class="text-white">
+<%- include("include/menu.ejs") -%>
+
+<main class="w-full h-screen flex">
+  <div class="menu w-full h-screen text-white flex flex-col gap-6 p-6 overflow-y-auto">
+    
+    <!-- HEADER -->
+    <div class="flex items-center justify-between border-b border-gray-600 pb-4 relative">
+      <h2 style="font-size: 2rem;" class="text-3xl w-1/2 mx-auto font-bold text-center">Sales Analytics Dashboard</h2>
+      <button onclick="window.history.back()" class="absolute right-0 top-0 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow border border-red-500 transition flex items-center gap-2">
+        <span class="text-xl leading-none">&larr;</span> Back
+      </button>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-2">
+        <div class="bg-gray-900 bg-opacity-60 border border-gray-700 p-6 rounded shadow-lg flex flex-col items-center justify-center">
+            <span class="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-2">Total Revenue</span>
+            <span class="text-4xl font-bold text-green-400">₹<%= metrics.totalRevenue %></span>
+        </div>
+        <div class="bg-gray-900 bg-opacity-60 border border-gray-700 p-6 rounded shadow-lg flex flex-col items-center justify-center">
+            <span class="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-2">Total Orders</span>
+            <span class="text-4xl font-bold text-blue-400"><%= metrics.totalOrders %></span>
+        </div>
+        <div class="bg-gray-900 bg-opacity-60 border border-gray-700 p-6 rounded shadow-lg flex flex-col items-center justify-center">
+            <span class="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-2">Average Order Value</span>
+            <span class="text-4xl font-bold text-purple-400">₹<%= metrics.avgOrderValue %></span>
+        </div>
+    </div>
+
+    <!-- CHARTS SECTION -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+        
+        <!-- Monthly Revenue Chart -->
+        <div class="lg:col-span-2 bg-gray-900 bg-opacity-60 border border-gray-700 p-6 rounded shadow-lg">
+            <h3 class="text-lg font-semibold text-gray-300 mb-4">Monthly Revenue Trend</h3>
+            <div class="relative h-72 w-full">
+                <canvas id="monthlyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Selling Items Chart -->
+        <div class="bg-gray-900 bg-opacity-60 border border-gray-700 p-6 rounded shadow-lg">
+            <h3 class="text-lg font-semibold text-gray-300 mb-4">Top 5 Selling Items</h3>
+            <div class="relative h-72 w-full flex justify-center">
+                <canvas id="itemsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- RECENT TRANSACTIONS TABLE -->
+    <div class="bg-gray-900 bg-opacity-60 border border-gray-700 rounded shadow-lg mt-4 overflow-hidden">
+        <div class="bg-gray-800 px-6 py-4 border-b border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-300">Recent Transactions</h3>
+        </div>
+        <div class="p-4 overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="text-gray-400 border-b border-gray-700">
+                        <th class="p-3">Order ID</th>
+                        <th class="p-3">Date & Time</th>
+                        <th class="p-3">Status</th>
+                        <th class="p-3 text-right">Total Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (orders && orders.length > 0) { %>
+                        <% orders.forEach(order => { %>
+                            <tr class="border-b border-gray-700 hover:bg-gray-800 transition">
+                                <td class="p-3 text-sm font-mono text-gray-300"><%= order.orderId.substring(0, 8) %>...</td>
+                                <td class="p-3 text-sm"><%= new Date(order.time).toLocaleString() %></td>
+                                <td class="p-3 text-sm">
+                                    <span class="px-2 py-1 rounded text-xs font-semibold 
+                                        <%= order.status === 'completed' ? 'bg-green-600 text-white' : 'bg-yellow-600 text-white' %>">
+                                        <%= order.status %>
+                                    </span>
+                                </td>
+                                <td class="p-3 font-semibold text-right text-green-400">₹<%= order.total %></td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="4" class="p-4 text-center text-gray-500 italic">No recent transactions found.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Injecting server-side data into client-side JS safely
+    const monthlyLabels = <%- chartData.labels %>;
+    const monthlyRevenues = <%- chartData.revenues %>;
+    const itemLabels = <%- chartData.itemLabels %>;
+    const itemRevenues = <%- chartData.itemRevenues %>;
+
+    // Default Chart.js settings for dark theme
+    Chart.defaults.color = '#9ca3af';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+
+    // 1. Monthly Revenue Line Chart
+    const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
+    new Chart(ctxMonthly, {
+        type: 'line',
+        data: {
+            labels: monthlyLabels,
+            datasets: [{
+                label: 'Revenue (₹)',
+                data: monthlyRevenues,
+                borderColor: '#10b981', // Tailwind green-500
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4, // smooth curves
+                pointBackgroundColor: '#10b981',
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) { return '₹' + context.parsed.y; }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(75, 85, 99, 0.2)' } // Tailwind gray-600
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    // 2. Top Selling Items Doughnut Chart
+    const ctxItems = document.getElementById('itemsChart').getContext('2d');
+    new Chart(ctxItems, {
+        type: 'doughnut',
+        data: {
+            labels: itemLabels,
+            datasets: [{
+                data: itemRevenues,
+                backgroundColor: [
+                    '#ef4444', // red-500
+                    '#3b82f6', // blue-500
+                    '#10b981', // green-500
+                    '#f59e0b', // amber-500
+                    '#8b5cf6'  // violet-500
+                ],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { boxWidth: 12, padding: 15 }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) { return ' ₹' + context.parsed; }
+                    }
+                }
+            },
+            cutout: '70%'
+        }
+    });
+});
+</script>
+</body>
+</html>

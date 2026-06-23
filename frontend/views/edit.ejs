@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style/output.css" />
+    <title>Edit <%= pageTitle %> - The Meat-Hub</title>
+    <style>
+    ::-webkit-scrollbar {
+      width: 3px; 
+      height: 4px; 
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent; 
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #ffffff, #ffffff);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #7e7d7d, #5e5959); 
+    }
+    </style>
+</head>
+<body class="text-white">
+<%- include("include/menu.ejs") -%>
+
+<main class="w-full h-screen flex">
+  <div class="menu w-full h-screen text-white flex flex-col gap-4 p-6">
+    <div class="flex items-center justify-between">
+      <h2 class="text-3xl font-bold"><%= pageTitle %> - Edit Menu</h2>
+      <a href="/orders" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded">Back to Orders</a>
+    </div>
+
+    <!-- Edit Existing Items -->
+    <div class="rData w-full border-2 border-gray-500 rounded flex flex-col h-2/3 overflow-y-auto p-4">
+      <h3 class="text-xl font-semibold mb-4 border-b border-gray-500 pb-2">Existing Dishes</h3>
+      <ul class="flex flex-col w-full gap-2">
+        <% if (menuData && menuData.length > 0) { %>
+          <% for (let data of menuData) { %>
+            <li class="flex items-center justify-between text-white p-3 hover:bg-gray-800 transition duration-200 border-b border-gray-700 w-full">
+              <!-- Edit Form -->
+              <form method="POST" action="/edit/<%= menuType %>/<%= data.id %>?_method=PUT" class="flex gap-6 w-3/4">
+                <div class="flex flex-col w-1/2">
+                  <label class="text-xs text-gray-400 mb-1">Dish Name</label>
+                  <input type="text" name="itemName" value="<%= data.itemName %>" class="bg-transparent border-b border-gray-500 text-white px-2 py-1 focus:outline-none focus:border-white w-full transition-colors" required>
+                </div>
+                <div class="flex flex-col w-1/4">
+                  <label class="text-xs text-gray-400 mb-1">Price (₹)</label>
+                  <input type="number" name="itemPrice" value="<%= data.itemPrice %>" class="bg-transparent border-b border-gray-500 text-white px-2 py-1 focus:outline-none focus:border-white w-full transition-colors" required>
+                </div>
+                <div class="flex items-end">
+                  <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded h-[40px]">Save</button>
+                </div>
+              </form>
+
+              <!-- Delete Form -->
+              <form method="POST" action="/edit/<%= menuType %>/<%= data.id %>?_method=DELETE" class="flex items-end" onsubmit="return confirm('Are you sure you want to delete this dish?');">
+                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded h-[40px]">Delete</button>
+              </form>
+            </li>
+          <% } %>
+        <% } else { %>
+          <p class="text-gray-400">No dishes found in this menu.</p>
+        <% } %>
+      </ul>
+    </div>
+
+    <!-- Add New Item -->
+    <div class="w-full border-2 border-gray-500 rounded flex flex-col p-4 mt-4">
+      <h3 class="text-xl font-semibold mb-4 border-b border-gray-500 pb-2">Add New Dish</h3>
+      <form method="POST" action="/edit/<%= menuType %>" class="flex gap-6 items-end">
+        <div class="flex flex-col w-1/3">
+          <label class="text-sm text-gray-300 mb-1">Dish Name</label>
+          <input type="text" name="itemName" placeholder="e.g. Chicken Curry" class="bg-transparent border-b border-gray-500 text-white px-2 py-1 focus:outline-none focus:border-white w-full transition-colors" required>
+        </div>
+        <div class="flex flex-col w-1/4">
+          <label class="text-sm text-gray-300 mb-1">Price (₹)</label>
+          <input type="number" name="itemPrice" placeholder="e.g. 250" class="bg-transparent border-b border-gray-500 text-white px-2 py-1 focus:outline-none focus:border-white w-full transition-colors" required>
+        </div>
+        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded h-[40px]">Add Dish</button>
+      </form>
+    </div>
+
+  </div>
+</main>
+
+</body>
+</html>

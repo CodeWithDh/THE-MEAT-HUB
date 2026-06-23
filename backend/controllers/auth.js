@@ -1,43 +1,50 @@
-import {Remail,Rphone,updatePass} from "../config/auth.js";
+import { updatePass, getAdminDetails } from "../config/auth.js";
+import { createOtp, sendCustomOtp, sendEmail } from "./sendOtp.js";
 
-import {createOtp,sendCustomOtp,sendEmail} from "./sendOtp.js";
+export async function authCheck(email, phone) {
+    const adminDetails = await getAdminDetails();
+    if (!adminDetails) {
+        return { message: 'incorrect', otpMsg: 'Admin not found' };
+    }
 
-export async function authCheck (email,phone){
-    if (email === Remail && phone === String(Rphone)) {
+    if (email === adminDetails.email && phone === String(adminDetails.phone)) {
         let otp = createOtp();
-        await sendEmail(Remail, otp);
+        await sendEmail(adminDetails.email, otp);
 
         const phoneNumber = '+91' + phone; 
-        sendCustomOtp(phoneNumber, otp)
-            .then(sid => console.log('Custom OTP sent successfully! Message SID:', sid))
-            .catch(error => console.error('Failed to send custom OTP:', error));
+        try {
+            const sid = await sendCustomOtp(phoneNumber, otp);
+            console.log('Custom OTP sent successfully! Message SID:', sid);
+        } catch (error) {
+            console.error('Failed to send custom OTP:', error);
+            // Twilio failed but we can still return success for email.
+        }
 
-        return { message: "clear", otpMsg: 'null' , otp };
+        return { message: "clear", otpMsg: 'null', otp };
     } else {
         return { message: 'incorrect', otpMsg: 'NotNull' };
     }
 }
 
-export async function authVerify(providedOtp,sentOtp){
-    if (providedOtp === sentOtp) {
-        return { message: "verified" , otpMsg:"null"};
+export async function authVerify(providedOtp, sentOtp) {
+    if (!sentOtp || providedOtp !== sentOtp) {
+        return { message: 'clear', otpMsg: 'Wrong Otp' };
     } else {
-        return{ message: 'clear', otpMsg: 'Wrong Otp' };
+        return { message: "verified", otpMsg: "null" };
     }
 }
 
-export async function setNewPass(newPass,confirmPass){
+export async function setNewPass(newPass, confirmPass) {
     if (newPass === confirmPass) {
-        let result=await updatePass(newPass);
+        let result = await updatePass(newPass);
         console.log(result);
-        if(result===true){
+        if (result === true) {
             return true;
-        }else{
+        } else {
             console.log("Password changing error");
+            return false;
         }
     } else {
-        
         return false;
     }
 }
-

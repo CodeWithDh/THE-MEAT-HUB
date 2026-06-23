@@ -5,9 +5,9 @@ export function createOtp() {
 
 // SMS verification
 import twilio from "twilio";
-const accountSid = 'AC04927112f9f5f0e4cd35dc340a002006'; // Your Twilio Account SID
-const authToken = 'b1c039d5f6b8dd06cf5b9c412eeeaf37'; // Your Twilio Auth Token
-const twilioPhoneNumber = '+13158884791'; // Your Twilio phone number
+const accountSid = process.env.TWILIO_ACCOUNT_SID || 'AC04927112f9f5f0e4cd35dc340a002006'; // Your Twilio Account SID
+const authToken = process.env.TWILIO_AUTH_TOKEN || 'b1c039d5f6b8dd06cf5b9c412eeeaf37'; // Your Twilio Auth Token
+const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER || '+13158884791'; // Your Twilio phone number
 
 const client = twilio(accountSid, authToken);
 
@@ -40,8 +40,8 @@ export async function sendEmail(email, otp) {
             secure: true,
             port: 465,
             auth: {
-                user: "iamuniguy@gmail.com",
-                pass: "czuv eics xbnk gvhy",
+                user: process.env.GMAIL_USER || "iamuniguy@gmail.com",
+                pass: process.env.GMAIL_PASS || "czuv eics xbnk gvhy",
             }
         });
 

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/style/output.css" />
+    <title>Manual Billing - The Meat-Hub</title>
+    <style>
+      ::-webkit-scrollbar {
+        width: 3px;
+        height: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #ffffff, #ffffff);
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #7e7d7d, #5e5959);
+      }
+    </style>
+  </head>
+  <body class="text-white">
+    <%- include("include/menu.ejs") -%>
+
+    <main class="w-full h-screen flex">
+      <div
+        class="menu w-full h-screen text-white flex flex-col gap-6 p-6 overflow-y-auto"
+      >
+        <div class="flex items-center justify-between border-b border-red-800 pb-4 relative">
+          <h2 style="font-size: 2rem" class="text-3xl font-bold w-1/2 mx-auto text-center">
+            Manual Billing
+          </h2>
+          <button onclick="window.history.back()" class="absolute right-0 top-0 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow border border-red-500 transition flex items-center gap-2">
+            <span class="text-xl leading-none">&larr;</span> Back
+          </button>
+        </div>
+
+        <div
+          class="w-full border-2 border-red-900 rounded flex flex-col p-6 mt-2 bg-red-950 bg-opacity-40 shadow-lg"
+        >
+          <form id="billing-form" class="w-full flex flex-col gap-4">
+            <div id="items-container" class="flex flex-col gap-4">
+              <!-- Initial Item Row -->
+              <div
+                class="item-row flex items-end gap-4 bg-red-950 bg-opacity-60 p-4 rounded border border-red-900"
+              >
+                <div class="flex flex-col w-2/5">
+                  <label class="text-sm text-gray-300 mb-1"
+                    >Custom Item Name</label
+                  >
+                  <input
+                    type="text"
+                    name="itemName"
+                    class="bg-transparent border-b border-gray-500 text-white px-2 py-1 focus:outline-none focus:border-white transition-colors item-name"
+                    required
+                    placeholder="e.g. Special Platter"
+                  />
+                </div>
+                <div class="flex flex-col w-1/5">
+                  <label class="text-sm text-gray-300 mb-1">Price (&#8377;)</label>
+                  <input
+                    type="number"
+                    name="itemPrice"
+                    class="bg-transparent border-b border-gray-500 text-white px-2 py-1 focus:outline-none focus:border-white transition-colors item-price"
+                    required
+                    min="0"
+                    value="0"
+                  />
+                </div>
+                <div class="flex flex-col w-1/5">
+                  <label class="text-sm text-gray-300 mb-1">Quantity</label>
+                  <input
+                    type="number"
+                    name="quantity"
+                    class="bg-transparent border-b border-gray-500 text-white px-2 py-1 focus:outline-none focus:border-white transition-colors item-qty"
+                    required
+                    min="1"
+                    value="1"
+                  />
+                </div>
+                <div class="flex flex-col w-1/5 text-right">
+                  <label class="text-sm text-gray-300 mb-1">Total</label>
+                  <span class="text-lg font-semibold text-green-400 row-total"
+                    >&#8377;0</span
+                  >
+                </div>
+                <button
+                  type="button"
+                  class="remove-btn bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded transition ml-2 hidden"
+                >
+                  X
+                </button>
+              </div>
+            </div>
+
+            <div class="flex justify-between items-center mt-4">
+              <button
+                type="button"
+                id="add-item-btn"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition border border-blue-500"
+              >
+                + Add Another Item
+              </button>
+
+              <div
+                class="text-2xl font-bold text-green-400 border border-green-500 p-3 rounded bg-green-900 bg-opacity-20"
+              >
+                Grand Total: <span id="grand-total">₹0</span>
+              </div>
+            </div>
+
+            <div class="flex justify-end mt-6 pt-4 border-t border-gray-600">
+              <button
+                type="submit"
+                id="generate-btn"
+                class="bg-red-600 hover:bg-red-700 text-white font-bold p-3 rounded transition text-lg shadow-lg w-1/2 mx-auto mt-4"
+              >
+                Generate Invoice PDF
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const itemsContainer = document.getElementById("items-container");
+        const addItemBtn = document.getElementById("add-item-btn");
+        const grandTotalEl = document.getElementById("grand-total");
+        const billingForm = document.getElementById("billing-form");
+        const generateBtn = document.getElementById("generate-btn");
+
+        function calculateTotals() {
+          let grandTotal = 0;
+          const rows = document.querySelectorAll(".item-row");
+
+          rows.forEach((row) => {
+            const price =
+              parseFloat(row.querySelector(".item-price").value) || 0;
+            const qty = parseInt(row.querySelector(".item-qty").value) || 0;
+            const total = price * qty;
+            row.querySelector(".row-total").innerText = `₹${total}`;
+            grandTotal += total;
+          });
+
+          grandTotalEl.innerText = `₹${grandTotal}`;
+
+          // Toggle visibility of remove buttons (hide if only 1 row)
+          const removeBtns = document.querySelectorAll(".remove-btn");
+          if (rows.length > 1) {
+            removeBtns.forEach((btn) => btn.classList.remove("hidden"));
+          } else {
+            removeBtns.forEach((btn) => btn.classList.add("hidden"));
+          }
+        }
+
+        itemsContainer.addEventListener("input", calculateTotals);
+
+        addItemBtn.addEventListener("click", () => {
+          const firstRow = document.querySelector(".item-row");
+          const newRow = firstRow.cloneNode(true);
+          newRow.querySelector(".item-name").value = "";
+          newRow.querySelector(".item-price").value = "0";
+          newRow.querySelector(".item-qty").value = "1";
+          newRow.querySelector(".row-total").innerText = "₹0";
+
+          newRow
+            .querySelector(".remove-btn")
+            .addEventListener("click", function () {
+              newRow.remove();
+              calculateTotals();
+            });
+
+          itemsContainer.appendChild(newRow);
+          calculateTotals();
+        });
+
+        // Add event listener to the initial remove button just in case (though it starts hidden)
+        document
+          .querySelector(".remove-btn")
+          .addEventListener("click", function (e) {
+            e.target.closest(".item-row").remove();
+            calculateTotals();
+          });
+
+        billingForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const originalText = generateBtn.innerText;
+          generateBtn.innerText = "Generating...";
+          generateBtn.disabled = true;
+
+          const items = [];
+          let total = 0;
+
+          document.querySelectorAll(".item-row").forEach((row) => {
+            const itemName = row.querySelector(".item-name").value;
+            const itemPrice =
+              parseFloat(row.querySelector(".item-price").value) || 0;
+            const quantity =
+              parseInt(row.querySelector(".item-qty").value) || 0;
+
+            if (itemName && itemPrice >= 0 && quantity > 0) {
+              items.push({ itemName, itemPrice, quantity });
+              total += itemPrice * quantity;
+            }
+          });
+
+          if (items.length === 0) {
+            alert("Please add at least one valid item.");
+            generateBtn.innerText = originalText;
+            generateBtn.disabled = false;
+            return;
+          }
+
+          try {
+            const response = await fetch("/billing/generate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ items, total }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+              // Trigger download or redirect
+              alert("Invoice generated successfully!");
+              window.location.href = data.invoiceUrl;
+              // Reset form
+              billingForm.reset();
+              calculateTotals();
+            } else {
+              alert("Failed to generate invoice.");
+            }
+          } catch (error) {
+            console.error("Error generating bill:", error);
+            alert("An error occurred.");
+          } finally {
+            generateBtn.innerText = originalText;
+            generateBtn.disabled = false;
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

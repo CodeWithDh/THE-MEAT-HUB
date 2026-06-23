@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style/output.css" />
+    <title><%= pageTitle %> - The Meat-Hub</title>
+    <style>
+    ::-webkit-scrollbar { width: 3px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #ffffff, #ffffff); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #7e7d7d, #5e5959); }
+    </style>
+</head>
+<body class="text-white">
+<%- include("include/menu.ejs") -%>
+
+<main class="w-full h-screen flex">
+  <div class="menu w-full h-screen text-white flex flex-col gap-6 p-6 overflow-y-auto">
+    <div class="flex items-center justify-between border-b border-red-800 pb-4 relative">
+      <h2 style="font-size: 2rem;" class="text-3xl w-1/2 mx-auto font-bold text-center"><%= pageTitle %></h2>
+      <button onclick="window.history.back()" class="absolute right-0 top-0 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow border border-red-500 transition flex items-center gap-2">
+        <span class="text-xl leading-none">&larr;</span> Back
+      </button>
+    </div>
+
+    <!-- LOW STOCK ALERTS -->
+    <% if (alerts && alerts.length > 0) { %>
+      <div class="bg-red-900 bg-opacity-20 border border-red-500 rounded p-4 shadow-lg">
+        <h3 class="text-xl font-bold text-red-500 mb-3 flex items-center gap-2">
+          <span>&#9888;&#65039;</span> Low Stock Alerts
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <% alerts.forEach(alert => { %>
+            <div class="bg-black bg-opacity-40 border-l-4 border-red-500 p-3 rounded">
+              <p class="font-bold text-lg"><%= alert.name %> <span class="text-sm text-gray-400 font-normal capitalize">(<%= alert.table %>)</span></p>
+              <div class="flex justify-between mt-2 text-sm">
+                <span class="text-red-400 font-semibold">Current: <%= alert.quantity %></span>
+                <span class="text-gray-400">Min Required: <%= alert.minStock %></span>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- INVENTORY TABLES -->
+    <div class="flex flex-col gap-8">
+      <% tables.forEach(table => { %>
+        <div class="bg-red-950 bg-opacity-40 border border-red-900 rounded overflow-hidden shadow-lg">
+          <div class="bg-red-900 px-4 py-3 border-b border-red-800">
+            <h3 class="text-xl font-semibold capitalize tracking-wide text-red-200"><%= table %> Inventory</h3>
+          </div>
+          
+          <div class="p-4">
+            <% if (inventory[table] && inventory[table].length > 0) { %>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="text-red-300 border-b border-red-900">
+                      <th class="p-2 w-1/2">Item Name</th>
+                      <th class="p-2 w-1/4">Current Stock</th>
+                      <th class="p-2 w-1/4 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% inventory[table].forEach(item => { %>
+                      <% 
+                        let name = item.stockName || "N/A";
+                        let qty = item.stockValue || 0;
+                        let isLow = Number(qty) < 10;
+                      %>
+                      <tr class="border-b border-red-900 hover:bg-red-900 hover:bg-opacity-20 transition">
+                        <form method="POST" action="/inventory/<%= table %>/<%= item.stockId %>?_method=PUT">
+                          <td class="p-2 font-medium <%= isLow ? 'text-red-400' : 'text-gray-200' %>">
+                            <%= name %>
+                            <% if (isLow) { %> <span class="text-xs ml-2 bg-red-600 text-white px-1.5 py-0.5 rounded">Low</span> <% } %>
+                          </td>
+                          <td class="p-2">
+                            <input type="number" name="stockValue" value="<%= qty %>" class="bg-transparent border-b border-red-700 text-white px-2 py-1 w-2/3 focus:outline-none focus:border-red-400 transition-colors">
+                          </td>
+                          <td class="p-2 text-right">
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded transition shadow">Update</button>
+                          </td>
+                        </form>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } else { %>
+              <p class="text-gray-400 italic">No items found in <%= table %> category.</p>
+            <% } %>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+  </div>
+</main>
+</body>
+</html>

@@ -1,65 +1,88 @@
-    <!-- Menu Section -->
-    <div id="menu" class="h-screen fixed flex flex-col">
-      <!-- Menu Header -->
-      <div class="py-8  px-4">
-          <h2 class="text-xl font-bold text-white text-center">Menu</h2>
-      </div>
-      
-      <!-- Menu Items -->
-      <nav class="flex-1 flex flex-col justify-between py-4">
-          <!-- Main Navigation -->
-          <ul class="space-y-2 px-4">
-              <li>
-                  <a href="/dashboard" class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200 text-gray-200 hover:text-white">
-                      <span class="mr-3 text-lg">🏠</span>
-                      <span class="font-medium tracking-wide">Dashboard</span>
-                  </a>
-              </li>
-              <li>
-                  <a href="/orders" class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200 text-gray-200 hover:text-white">
-                      <span class="mr-3 text-lg">📝</span>
-                      <span class="font-medium tracking-wide">Orders</span>
-                  </a>
-              </li>
-              <li>
-                  <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200 text-gray-200 hover:text-white">
-                      <span class="mr-3 text-lg">💰</span>
-                      <span class="font-medium tracking-wide">Billing</span>
-                  </a>
-              </li>
-              <li>
-                  <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200 text-gray-200 hover:text-white">
-                      <span class="mr-3 text-lg">📦</span>
-                      <span class="font-medium tracking-wide">Inventory</span>
-                  </a>
-              </li>
-              <li>
-                  <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200 text-gray-200 hover:text-white">
-                      <span class="mr-3 text-lg">👥</span>
-                      <span class="font-medium tracking-wide">Sales</span>
-                  </a>
-              </li>
-              <li>
-                  <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200 text-gray-200 hover:text-white">
-                      <span class="mr-3 text-lg">📄</span>
-                      <span class="font-medium tracking-wide">Invoices</span>
-                  </a>
-              </li>
-          </ul>
-          
-          <!-- Bottom Section (Logout) -->
-          <div class="px-4 pb-8">
-              <a href="/logout" class="flex items-center p-3 rounded-lg bg-red-600 hover:bg-red-700 transition-colors duration-200 text-white">
-                  <span class="mr-3 text-lg">🚪</span>
-                  <span class="font-medium tracking-wide">Logout</span>
-              </a>
-          </div>
-      </nav>
+<!-- Menu Section -->
+<div id="menu" class="h-screen fixed flex flex-col">
+  <!-- Menu Header -->
+  <div class="py-8 px-4">
+    <h2 class="text-xl font-bold text-white text-center">Menu</h2>
   </div>
-    <div id="content-wrapper" class="h-screen">
-    <!-- Menu Toggle Button -->
-    <button id="menu-toggle" class="fixed top-4 left-4 z-50 mt-1">☰</button>
-     <script>
+
+  <!-- Menu Items -->
+  <nav class="flex-1 flex flex-col justify-between py-4">
+    <!-- Main Navigation -->
+    <ul class="space-y-2 px-4">
+      <li>
+        <form action="/dashboard" method="POST" class="w-full">
+          <button
+            type="submit"
+            class="w-full flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200 text-gray-200 hover:text-white cursor-pointer"
+          >
+            <span class="mr-3 text-lg">🏠</span>
+            <span class="font-medium tracking-wide">Dashboard</span>
+          </button>
+        </form>
+      </li>
+      <li>
+        <a
+          href="/orders"
+          class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200 text-gray-200 hover:text-white"
+        >
+          <span class="mr-3 text-lg">📝</span>
+          <span class="font-medium tracking-wide">Orders</span>
+        </a>
+      </li>
+      <li>
+        <a
+          href="/billing"
+          class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200 text-gray-200 hover:text-white"
+        >
+          <span class="mr-3 text-lg">💰</span>
+          <span class="font-medium tracking-wide">Billing</span>
+        </a>
+      </li>
+      <li>
+        <a
+          href="/inventory"
+          class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200 text-gray-200 hover:text-white"
+        >
+          <span class="mr-3 text-lg">📦</span>
+          <span class="font-medium tracking-wide">Inventory</span>
+        </a>
+      </li>
+      <li>
+        <a
+          href="/sales"
+          class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200 text-gray-200 hover:text-white"
+        >
+          <span class="mr-3 text-lg">👥</span>
+          <span class="font-medium tracking-wide">Sales</span>
+        </a>
+      </li>
+      <li>
+        <a
+          href="/invoices"
+          class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200 text-gray-200 hover:text-white"
+        >
+          <span class="mr-3 text-lg">📄</span>
+          <span class="font-medium tracking-wide">Invoices</span>
+        </a>
+      </li>
+    </ul>
+
+    <!-- Bottom Section (Logout) -->
+    <div class="px-4 pb-8">
+      <a
+        href="/logout"
+        class="flex items-center p-3 rounded-lg bg-red-600 hover:bg-red-700 transition-colors duration-200 text-white"
+      >
+        <span class="mr-3 text-lg">🚪</span>
+        <span class="font-medium tracking-wide">Logout</span>
+      </a>
+    </div>
+  </nav>
+</div>
+<div id="content-wrapper" class="h-screen">
+  <!-- Menu Toggle Button -->
+  <button id="menu-toggle" class="fixed top-4 left-4 z-50 mt-1">☰</button>
+  <script>
     document.addEventListener("DOMContentLoaded", function () {
       const menuToggle = document.getElementById("menu-toggle");
       const menu = document.getElementById("menu");
@@ -79,3 +102,4 @@
       });
     });
   </script>
+</div>

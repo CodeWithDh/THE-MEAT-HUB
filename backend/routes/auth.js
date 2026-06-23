@@ -8,13 +8,13 @@ router.get("/",(req,res)=>{
     res.render("auth.ejs",{message:''});
 })
 
-let sentOtp;
-
 router.post("/check",async(req,res)=>{
     let {email,phone}=req.body;
     let {message,otpMsg,otp}=await authCheck(email,phone);
 
-    sentOtp=otp
+    if (otp) {
+        req.session.otp = otp;
+    }
 
     console.log(message,otpMsg);
     res.render("auth.ejs",{message,otpMsg});
@@ -23,7 +23,11 @@ router.post("/check",async(req,res)=>{
 
 router.post("/verify",async(req,res)=>{
     let providedOtp=req.body.otp;
+    let sentOtp = req.session.otp;
     let {message,otpMsg}=await authVerify(providedOtp,sentOtp);
+    if(message === "verified"){
+        delete req.session.otp;
+    }
     res.render("auth.ejs",{message,otpMsg});
 })
 
@@ -31,7 +35,9 @@ router .post("/newpass",async(req,res)=>{
     let {newPassword,confirmPassword} = req.body;
     await setNewPass(newPassword,confirmPassword).then((response)=>{
         if(response===true){
-            res.render("login.ejs",{msg:'Password Changed'});
+            req.session.destroy((err) => {
+                res.render("login.ejs",{msg:'Password Changed'});
+            });
         }else{
             res.render("auth.ejs",{ message: "clear", otpMsg: 'New Password Mismatched \n Authenticate Again' });
         }

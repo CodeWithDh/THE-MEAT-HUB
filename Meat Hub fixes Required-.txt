@@ -1,0 +1,22 @@
+Meat Hub fixes Required:-
+Not Working =>
+- Dividing into files : invoicegeneration is not working  done
+1. otp is not received on mobile number 
+2. passward is changed but not instantly active
+3. session left to be made done
+4. dashboard cannot be accessed from orders page. done
+
+Pending features=>
+1. edit menu
+2. Invoices display
+3. billing
+4. inventory
+5. sales
+
+
+
+
+
+
+
+

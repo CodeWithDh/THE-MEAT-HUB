@@ -40,92 +40,142 @@
       <!-- Top Section -->
       <div class="h-[30%] flex items-center justify-center space-y-4 pb-4 border-b-2 border-white">
         <img
+        style="margin-right: 5rem;"
           src="assets/logo.png"
           alt="Logo"
           class="w-64 h-28 object-contain logo"
         />
 
         <div class="flex space-x-3">
-          <div class="flex flex-col items-center cursor-pointer">
-            <img
-              class="miniMap border-2 border-black"
-              src="https://thelawgivers.com/wp-content/uploads/2016/04/dummy-post-square-1.jpg"
-              alt="empData"
-            />
-            <span class="text-white text-sm mt-1">Employees</span>
+          <div class="flex flex-col items-center cursor-pointer" onclick="window.location.href='/employes'">
+            <div class="miniMap border-2 border-red-500 bg-gradient-to-br from-red-950 to-red-900 overflow-auto text-xs text-left rounded shadow">
+              <table class="w-full text-white">
+                <thead class="bg-red-800 sticky top-0 z-10">
+                  <tr class="text-white font-bold">
+                    <th class="p-1 border-b border-red-700">ID</th>
+                    <th class="p-1 border-b border-red-700">Name</th>
+                    <th class="p-1 border-b border-red-700">Salary</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if(typeof employees !== 'undefined' && employees.length > 0) { %>
+                    <% employees.forEach(emp => { %>
+                      <tr class="border-b border-red-800 hover:bg-red-800 transition">
+                        <td class="p-1 truncate max-w-[60px] font-mono text-white"><%= emp.employeeId %></td>
+                        <td class="p-1 truncate max-w-[80px] font-medium text-white"><%= emp.employeeName %></td>
+                        <td class="p-1 text-green-400 font-bold">₹<%= emp.salary %></td>
+                      </tr>
+                    <% }) %>
+                  <% } else { %>
+                    <tr><td colspan="3" class="text-center py-4 text-white italic">No Employees</td></tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+            <span class="text-white text-sm mt-1 font-semibold text-blue-400 hover:text-blue-300">Employees</span>
           </div>
-          <div class="flex flex-col items-center cursor-pointer">
-            <img
-              class="miniMap border-2 border-black"
-              src="https://thelawgivers.com/wp-content/uploads/2016/04/dummy-post-square-1.jpg"
-              alt="inventoryIndicator"
-            />
-            <span class="text-white text-sm mt-1">Inventory</span>
+          <!-- 2. Mini Inventory -->
+          <div class="flex flex-col items-center cursor-pointer" onclick="window.location.href='/inventory'">
+            <div class="miniMap border-2 border-red-500 bg-gradient-to-br from-red-950 to-red-900 overflow-auto text-xs text-left rounded shadow">
+              <table class="w-full text-white">
+                <thead class="bg-red-800 sticky top-0 z-10">
+                  <tr class="text-white font-bold">
+                    <th class="p-1 border-b border-red-700">Low Stock Item</th>
+                    <th class="p-1 border-b border-red-700 text-right">Qty</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if(typeof lowStock !== 'undefined' && lowStock.length > 0) { %>
+                    <% lowStock.slice(0, 5).forEach(item => { %>
+                      <tr class="border-b border-red-800 hover:bg-red-800 transition">
+                        <td class="p-1 truncate max-w-[120px] font-medium text-white"><%= item.stockName %></td>
+                        <td class="p-1 text-white font-bold text-right"><%= item.stockValue %></td>
+                      </tr>
+                    <% }) %>
+                  <% } else { %>
+                    <tr><td colspan="2" class="text-center py-4 text-white italic font-semibold">Stock is Healthy</td></tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+            <span class="text-white text-sm mt-1 font-semibold text-blue-400 hover:text-blue-300">Inventory Alerts</span>
           </div>
-          <div class="flex flex-col items-center cursor-pointer">
-            <img
-              class="miniMap border-2 border-black"
-              src="https://thelawgivers.com/wp-content/uploads/2016/04/dummy-post-square-1.jpg"
-              alt="salesGraph"
-            />
-            <span class="text-white text-sm mt-1">Sales</span>
-          </div>
-          <div class="flex flex-col items-center cursor-pointer" style="margin-right: 10px;">
-            <img
-              class="miniMap border-2 border-black"
-              src="https://thelawgivers.com/wp-content/uploads/2016/04/dummy-post-square-1.jpg"
-              alt="orderGraph"
-            />
-            <span class="text-white text-sm mt-1">Orders</span>
+
+          <!-- 3. Mini Sales Graph -->
+          <div class="flex flex-col items-center cursor-pointer" onclick="window.location.href='/sales'" style="margin-right: 10px;">
+            <div class="miniMap border-2 border-red-500 bg-gradient-to-br from-red-950 to-red-900 overflow-hidden rounded shadow flex flex-col justify-center items-center p-1 relative">
+                <canvas id="miniSalesChart" class="w-full h-full"></canvas>
+            </div>
+            <span class="text-white text-sm mt-1 font-semibold text-blue-400 hover:text-blue-300">Sales Overview</span>
           </div>
         </div>
       </div>
       
       <div class="h-[70%] w-full flex flex-col items-center p-4 pb-2">
   <h3 class="text-2xl font-semibold mb-6 text-white">📋 Recent Orders</h3>
-  <!-- Table Headers -->
-  <table class="w-full text-white border-collapse">
-    <thead class="bg-red-500 sticky top-0 z-10">
-      <tr>
-        <th class="p-3 text-left font-medium text-gray-700">Order ID</th>
-        <th class="p-3 text-left font-medium text-gray-700">Ordered Items</th>
-        <th class="p-3 text-left font-medium text-gray-700">Time</th>
-        <th class="p-3 text-left font-medium text-gray-700">Total Amount</th>
-        <th class="p-3 text-left font-medium text-gray-700">Status</th>
-      </tr>
-    </thead>
-  </table>
-
-  <!-- Scrollable Table Body -->
- <div class="overflow-y-scroll w-full h-full scrollbar-thin">
-    <table class="w-full text-white border-collapse">
+  <!-- Scrollable Table -->
+ <div class="overflow-y-scroll w-full h-full scrollbar-thin relative">
+    <table class="w-full text-white border-collapse table-fixed">
+      <thead class="bg-red-500 sticky top-0 z-10">
+        <tr>
+          <th class="p-3 text-left font-bold text-white w-[5%]">S.No.</th>
+          <th class="p-3 text-left font-bold text-white w-[40%]">Ordered Items</th>
+          <th class="p-3 text-left font-bold text-white w-[20%] whitespace-nowrap">Time</th>
+          <th class="p-3 text-left font-bold text-white w-[15%] whitespace-nowrap">Total Amount</th>
+          <th class="p-3 text-left font-bold text-white w-[20%]">Status</th>
+        </tr>
+      </thead>
       <tbody class="divide-y divide-gray-200">
-        <% if (orders.length > 0) { %>
-          <% for (let order of orders) { %>
-            <tr>
-              <td class="p-3 cursor-pointer">#<%= order.orderId %></td>
-              <td class="p-3 cursor-pointer"><%= order.orderList %></td>
-              <td class="p-3 cursor-pointer">
-                <%- 
-                    `${String(new Date(order.time).getDate()).padStart(2, '0')}/
-                    ${String(new Date(order.time).getMonth() + 1).padStart(2, '0')}/
-                    ${new Date(order.time).getFullYear()},
-                    ${String(new Date(order.time).getHours() % 12 || 12).padStart(2, '0')}:
-                    ${String(new Date(order.time).getMinutes()).padStart(2, '0')}
-                    ${new Date(order.time).getHours() >= 12 ? 'PM' : 'AM'}`
-                %>
-              </td>
-              <td class="p-3 cursor-pointer">₹<%= order.total %></td>
-              <td class="p-3 cursor-pointer">
-                <span class="status <%= order.status.toLowerCase().replace(' ', '-') %>">
-                  <%= order.status %>
-                </span>
+        <% 
+          const todayStr = new Date().toDateString();
+          const activeOrders = orders.filter(o => {
+             const isToday = new Date(o.time).toDateString() === todayStr;
+             const status = o.status.toLowerCase();
+             return isToday && (status === 'pending' || status === 'processing');
+          }).sort((a, b) => {
+             const statusA = a.status.toLowerCase();
+             const statusB = b.status.toLowerCase();
+             if (statusA === 'pending' && statusB !== 'pending') return -1;
+             if (statusB === 'pending' && statusA !== 'pending') return 1;
+             return new Date(b.time) - new Date(a.time);
+          });
+          if (activeOrders.length > 0) { 
+        %>
+          <% activeOrders.forEach((order, index) => { %>
+            <tr class="hover:bg-red-900 transition">
+              <td class="p-3 cursor-pointer font-bold"><%= index + 1 %></td>
+              <% 
+                let itemsStr = order.orderList;
+                try {
+                  const itemsArr = JSON.parse(order.orderList);
+                  if(Array.isArray(itemsArr)) {
+                    itemsStr = itemsArr.map(item => `${item.itemName} (x${item.quantity})`).join(', ');
+                  }
+                } catch(e) { /* fallback */ }
+              %>
+              <td class="p-3 cursor-pointer max-w-xs truncate" title="<%= itemsStr %>"><%= itemsStr %></td>
+              <%
+                const d = new Date(order.time);
+                const dateFormatted = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}, ${String(d.getHours() % 12 || 12).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} ${d.getHours() >= 12 ? 'PM' : 'AM'}`;
+              %>
+              <td class="p-3 cursor-pointer whitespace-nowrap"><%= dateFormatted %></td>
+              <td class="p-3 cursor-pointer font-bold text-green-400">₹<%= order.total %></td>
+              <td class="p-3">
+                <form method="POST" action="/dashboard/update-status" class="flex items-center">
+                    <input type="hidden" name="orderId" value="<%= order.orderId %>">
+                    <select name="status" onchange="this.form.submit()" class="bg-red-600 text-white border border-red-500 rounded px-2 py-1 outline-none text-sm cursor-pointer hover:bg-red-700 transition">
+                        <option value="pending" <%= order.status.toLowerCase() === 'pending' ? 'selected' : '' %>>Pending</option>
+                        <option value="processing" <%= order.status.toLowerCase() === 'processing' ? 'selected' : '' %>>Processing</option>
+                        <option value="completed" <%= order.status.toLowerCase() === 'completed' ? 'selected' : '' %>>Completed</option>
+                        <option value="cancelled" <%= order.status.toLowerCase() === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                    </select>
+                </form>
               </td>
             </tr>
-          <% } %>
+          <% }) %>
         <% } else { %>
           <tr>
-            <td colspan="5" class="p-4 text-center text-gray-500">No recent orders found.</td>
+            <td colspan="5" class="p-4 text-center text-gray-500">No pending orders found.</td>
           </tr>
         <% } %>
       </tbody>
@@ -133,6 +183,71 @@
   </div>
 </div>
 </div>
+</div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const ordersData = <%- JSON.stringify(typeof orders !== 'undefined' ? orders : []) %>;
+    
+    // Process orders into a simple chart (e.g., last 5 days revenue)
+    const revenueByDay = {};
+    
+    // Since orders is usually ordered by time DESC, we can reverse it or just process
+    const sortedOrders = [...ordersData].sort((a, b) => new Date(a.time) - new Date(b.time));
+
+    sortedOrders.forEach(o => {
+        if (!o.time) return;
+        if (o.status && o.status.toLowerCase() !== 'completed') return; // Only analyze completed sales
+        
+        const d = new Date(o.time);
+        const dateStr = d.getDate() + '/' + (d.getMonth()+1);
+        revenueByDay[dateStr] = (revenueByDay[dateStr] || 0) + parseFloat(o.total || 0);
+    });
+
+    const labels = Object.keys(revenueByDay).slice(-6); // Last 6 active days
+    const data = labels.map(l => revenueByDay[l]);
+
+    const ctx = document.getElementById('miniSalesChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Revenue (₹)',
+                data: data,
+                borderColor: '#EF4444', // red-500
+                backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                borderWidth: 2,
+                pointRadius: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    titleFont: { size: 10 },
+                    bodyFont: { size: 10 }
+                }
+            },
+            scales: {
+                x: { 
+                    display: true, 
+                    grid: { display: false, color: 'rgba(255, 255, 255, 0.1)' },
+                    ticks: { font: { size: 9 }, color: '#FFFFFF' } 
+                },
+                y: { 
+                    display: false 
+                }
+            },
+            layout: { padding: { left: 5, right: 5, top: 10, bottom: 0 } }
+        }
+    });
+});
+</script>
 </body>
 </html>

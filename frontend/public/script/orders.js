@@ -20,7 +20,7 @@ function toggleMenu() {
     }
 }
 
-console.log("working");
+console.log("working in script");
 
 // Array to store selected items
 let selectedItems = [];
@@ -112,64 +112,55 @@ function removeFromOrder(itemId) {
 
 // Function to place the order
 function placeOrder() {
-    if (selectedItems.length > 0) {
-        console.log("Selected Items:", selectedItems);
-
-        const totalPriceInput = document.getElementById("total-price");
-        const totalPrice = totalPriceInput.value.replace("₹", "");
-        console.log("Total (Numeric):", totalPrice);
-
-        // ✅ Show Loader (Tailwind spinner)
-        const loader = document.createElement("div");
-        loader.id = "loader";
-        loader.style = `
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5); display: flex; 
-            justify-content: center; align-items: center; z-index: 1000;
-        `;
-        loader.innerHTML = `
-            <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-white border-solid"></div>
-        `;
-        document.body.appendChild(loader);
-
-        // ✅ Send Data to Backend
-        fetch("http://localhost:3000/placeOrder", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ items: selectedItems, total: totalPrice })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Server responded with status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data && data.success && data.invoiceUrl) {
-                const pdfUrl = data.invoiceUrl;
-                console.log("Opening invoice:", pdfUrl);
-
-                const newTab = window.open(pdfUrl, "_blank");
-                if (!newTab) {
-                    alert("Popup blocked! Please allow popups and try again.");
-                }
-            } else {
-                throw new Error("Invalid invoice URL received.");
-            }
-        })
-        .catch(error => {
-            console.error("❌ Error placing order:", error);
-            alert("Failed to generate invoice. Please try again.");
-        })
-        .finally(() => {
-            if (document.getElementById("loader")) {
-                document.getElementById("loader").remove();
-            }
-            selectedItems = [];
-            updateOrderList();
-            updateTotalPrice();
-        });
-    } else {
-        console.log("No items selected.");
+    if (selectedItems.length === 0) {
+        alert("Please select items first");
+        return;
     }
+
+    const loader = document.getElementById("fullLoader");
+    loader.style.display = "flex";
+
+    const totalPrice = document
+        .getElementById("total-price")
+        .value.replace("₹", "")
+        .trim();
+
+    fetch("http://localhost:8080/placeOrder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            items: selectedItems,
+            total: totalPrice
+        })
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Server error");
+        return res.json();
+    })
+    .then(data => {
+        if (!data.success || !data.invoiceUrl) {
+            throw new Error("Invalid response");
+        }
+
+        // ✅ Open PDF
+        window.open(data.invoiceUrl, "_blank");
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Invoice generation failed");
+    })
+    .finally(() => {
+        // ✅ STOP LOADER FIRST (ABSOLUTE RULE)
+        loader.style.display = "none";
+
+        // ✅ SAFE CLEANUP
+        try {
+            selectedItems = [];
+            if (typeof updateOrderList === "function") updateOrderList();
+            if (typeof updateTotalPrice === "function") updateTotalPrice();
+        } catch (e) {
+            console.warn("Cleanup error ignored:", e);
+        }
+    });
 }
+

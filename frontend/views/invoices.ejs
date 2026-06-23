@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style/output.css" />
+    <title><%= pageTitle %> - The Meat-Hub</title>
+    <style>
+    ::-webkit-scrollbar {
+      width: 3px; 
+      height: 4px; 
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent; 
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #ffffff, #ffffff);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #7e7d7d, #5e5959); 
+    }
+    </style>
+</head>
+<body class="text-white">
+<%- include("include/menu.ejs") -%>
+
+<main class="w-full h-screen flex">
+  <div class="menu w-full h-screen text-white flex flex-col gap-4 p-6">
+    <div class="flex items-center justify-between relative border-b border-gray-600 pb-4">
+      <p style="font-size: 2rem;" class="font-bold w-1/2 mx-auto text-center"><%= pageTitle %></p>
+      <div class="flex gap-4 items-center">
+          <a href="/invoices/download-all" class="hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition">Download All (ZIP)</a>
+          
+          <form method="POST" action="/invoices/all?_method=DELETE" onsubmit="return confirm('Are you sure you want to delete ALL invoices? This action cannot be undone.');">
+              <button type="submit" style="margin-right: 1rem;" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-2 rounded transition">Delete All</button>
+          </form>
+          <button onclick="window.history.back()" class="ml-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow border border-red-500 transition flex items-center gap-2">
+            <span class="text-xl leading-none">&larr;</span> Back
+          </button>
+      </div>
+    </div>
+
+    <div class="w-full border-2 border-gray-500 rounded flex flex-col h-full overflow-y-auto p-4 mt-2">
+      <ul class="flex flex-col w-full gap-2">
+        <% if (invoices && invoices.length > 0) { %>
+          <% for (let invoice of invoices) { %>
+            <li class="flex items-center justify-between text-white p-3 hover:bg-gray-800 transition duration-200 border-b border-gray-700 w-full">
+              <div class="flex flex-col">
+                <span class="font-semibold text-lg"><%= invoice.filename %></span>
+                <span class="text-sm text-gray-400"><%= new Date(invoice.date).toLocaleString() %> • <%= invoice.size %></span>
+              </div>
+              
+              <div class="flex items-center gap-4">
+                <a href="<%= invoice.url %>" download class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition">Download</a>
+                
+                <form method="POST" action="/invoices/<%= invoice.filename %>?_method=DELETE" onsubmit="return confirm('Are you sure you want to delete this invoice?');">
+                  <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition">Delete</button>
+                </form>
+              </div>
+            </li>
+          <% } %>
+        <% } else { %>
+          <div class="flex items-center justify-center h-full">
+            <p class="text-gray-400 text-xl font-semibold">No invoices generated yet.</p>
+          </div>
+        <% } %>
+      </ul>
+    </div>
+  </div>
+</main>
+</body>
+</html>
